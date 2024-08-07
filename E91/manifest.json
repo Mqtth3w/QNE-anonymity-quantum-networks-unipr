@@ -1,0 +1,8 @@
+{
+  "application": {
+    "name": "e91",
+    "description": "E91 protocol simulation",
+    "multi_round": false
+  },
+  "remote": {}
+}
