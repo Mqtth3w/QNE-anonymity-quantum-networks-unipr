@@ -17,13 +17,13 @@ source myenvQNE/bin/activate
 ```
 Install packeges to build your projects/experiments
 - qne-adk
-```bash
-pip install qne-adk
-```
+  ```bash
+  pip install qne-adk
+  ```
 - SquidASM based on NetSquid <br>
-first register on https://forum.netsquid.org/
-```bash
-pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
-```
+  first register on https://forum.netsquid.org/
+  ```bash
+  pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
+  ```
   
 
