@@ -6,7 +6,6 @@
   ],
   "roles": [
     "Alice",
-    "Bob",
-    "Eve"
+    "Bob"
   ]
 }
