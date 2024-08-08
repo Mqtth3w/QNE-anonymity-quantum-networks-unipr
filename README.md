@@ -21,9 +21,9 @@ Install packeges to build your projects/experiments
 pip install qne-adk
 ```
 - SquidASM based on NetSquid
-  first register on https://forum.netsquid.org/
-  ```bash
-  pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
-  ```
+first register on https://forum.netsquid.org/
+```bash
+pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
+```
   
 
