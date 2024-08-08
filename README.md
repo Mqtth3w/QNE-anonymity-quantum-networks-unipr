@@ -20,7 +20,7 @@ Install packeges to build your projects/experiments
 ```bash
 pip install qne-adk
 ```
-- SquidASM based on NetSquid
+- SquidASM based on NetSquid <br>
 first register on https://forum.netsquid.org/
 ```bash
 pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
