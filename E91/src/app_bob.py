@@ -8,13 +8,13 @@ def main(app_config=None, x=0, y=0):
     epr_socket = EPRSocket("alice")
 
     bob = NetQASMConnection(
-        app_name=app_confing.appname, #"bob", 
+        app_name=app_config.app_name, #"bob", 
         log_config=app_config.log_config,
         epr_sockets=[epr_socket],
     )
     with bob:
         # Receive an entangled pair using the EPR socket to alice
-        q_ent = epr_socket.recv()[0] # .recv_keep() maintain it in memory, .recv() don't
+        q_ent = epr_socket.recv_keep()[0] # .recv_keep() maintain it in memory, .recv() don't and it is deprecated
         # Measure the qubit
         bob.flush() #ensure previous commands are executed, it is done automatically when you go out of the scope
         m = q_ent.measure()
