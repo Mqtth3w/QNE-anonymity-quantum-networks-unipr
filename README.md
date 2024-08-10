@@ -1,4 +1,4 @@
-# Quantum-unipr
+# Anonymous communication of quantum messages
 
 -%- Work in progress -%- WIP
 
