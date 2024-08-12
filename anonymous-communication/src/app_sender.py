@@ -9,6 +9,10 @@ from netqasm.sdk.external import NetQASMConnection
 
 def main(app_config=None, s=4, r=2):
     # Put your code here
+    
+    yi = protocol_Notification(SENDER, s, r, app_config)
+    print(f"Sender Yi = {yi}")
+    
     return {}
 
 

@@ -38,6 +38,9 @@
     "input_type": "number",
     "roles": [
       "sender",
+      "agent1",
+      "agent2",
+      "agent3"
     ]
   }
 ]
