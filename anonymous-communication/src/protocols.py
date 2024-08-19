@@ -5,6 +5,7 @@
 import random
 from functools import reduce
 from netqasm.sdk.external import Socket
+from netqasm.sdk.classical_communication.broadcast_channel import BroadcastChannel
 
 SENDER = 0
 AGENT1 = 1
