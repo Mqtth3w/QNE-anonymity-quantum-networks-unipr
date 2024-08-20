@@ -4,7 +4,7 @@
 
 Project for Quantum Computing: Quantum Network Explorer (QNE) to Simulate Advanced Quantum Security Protocols. In particular, implement the paper "Anonimity for practical quantum networks".
 
-### Linux (QNE configuration)
+### QNE configuration (Linux)
 QNE require Linux or MacOS (up to date)
 
 Create a virtual environment for the project
@@ -25,5 +25,17 @@ Install packeges to build your projects/experiments
   ```bash
   pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
   ```
-  
-
+## Quick simulation
+```bash
+cd anonymous-communication/src
+```
+```bash
+netqasm simulate
+```
+## Creating an experiment
+```bash
+qne experiment create exp1 anonymous-communication europe
+```
+```bash
+qne experiment run exp1
+```
