@@ -8,10 +8,9 @@ from netqasm.sdk.external import NetQASMConnection, Socket
 
 
 def main(app_config=None, s=2, r=2):
-    '''
+    
     # Create a socket to recv classical information
     socket = Socket("agent2", "sender", log_config=app_config.log_config)
-    
     epr_socket = EPRSocket("sender")
     agent2 = NetQASMConnection(
         app_name=app_config.app_name,
@@ -19,24 +18,22 @@ def main(app_config=None, s=2, r=2):
         epr_sockets=[epr_socket],
     )
     # teleportation to receive the GHZ qubit
-    with agent2:
-        q2 = epr_socket.recv_keep()[0]
-        agent2.flush()
-        # Get the corrections
-        m1, m2 = socket.recv_structured().payload
-        #print(f"`receiver` got corrections: {m1}, {m2}")
-        if m2 == 1:
-            #print("`receiver` will perform X correction")
-            q2.X()
-        if m1 == 1:
-            #print("`receiver` will perform Z correction")
-            q2.Z()
-        #agent1.flush()
-        m2 = q2.measure()
-        
-    print(f"agent2: m2={m2}")
-    '''
-    return {}
+    try:
+        with agent2:
+            q2 = epr_socket.recv_keep()[0]
+            agent2.flush()
+            # Get the corrections
+            m1, m2 = socket.recv_structured().payload
+            if m2 == 1:
+                q2.X()
+            if m1 == 1:
+                q2.Z()
+            m = q2.measure()
+    except Exception as e:
+        print(f"agent2 error: {e}")
+    print(f"agent2: m={m}")    
+    
+    return {"0":0}
 
 
 if __name__ == "__main__": 

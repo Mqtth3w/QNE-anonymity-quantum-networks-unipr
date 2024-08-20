@@ -4,67 +4,62 @@
 """
 
 from netqasm.sdk import EPRSocket, Qubit
-from netqasm.sdk.classical_communication.message import StructuredMessage
 from netqasm.sdk.external import NetQASMConnection, Socket
-
-
-def qubit_teleportation(dest, q, sender, epr_socket, socket, app_config):
-    
-    with sender:
-        epr = epr_socket.create_keep()[0]
-        # Teleport
-        q.cnot(epr)
-        q.H()
-        m1 = q.measure()
-        m2 = epr.measure()
-
-    # Send the correction information
-    m1, m2 = int(m1), int(m2)
-    socket.send_structured(StructuredMessage("Corrections", (m1, m2)))
+from netqasm.sdk.classical_communication.message import StructuredMessage
 
 
 def main(app_config=None, s=2, r=2):
-    
-    socket1 = Socket("sender", "agent1", log_config=app_config.log_config)
-    epr_socket1 = EPRSocket("agent1")
-    
+    sockets = [Socket("sender", a, log_config=app_config.log_config) for a in ["agent1", "agent2", "agent3"]]
+    epr_sockets = [EPRSocket(a) for a in ["agent1", "agent2", "agent3"]]
     sender = NetQASMConnection(
         app_name=app_config.app_name,
         log_config=app_config.log_config,
-        epr_sockets=[epr_socket1],
+        epr_sockets=epr_sockets,
     )
-    
-    with sender:
-        q0 = Qubit(sender)
-        q1 = Qubit(sender)
-        q2 = Qubit(sender)
-        q3 = Qubit(sender)
-        #GHZ
-        q0.H()
-        q0.cnot(q1)
-        q1.cnot(q2)
-        q2.cnot(q3)
-        #m0 = q0.measure()
-        #m1 = q1.measure()
-        #m2 = q2.measure()
-        #m3 = q3.measure()
-        #sender.flush()
-        #print(f"sender: m0={m0} m1={m1} m2={m2} m3={m3}")
-    
-        # teleport
-        epr1 = epr_socket1.create_keep()[0]
-        # Teleport
-        q1.cnot(epr1)
-        q1.H()
-        m11 = q1.measure()
-        m12 = epr1.measure()
-
+    try:
+        with sender:
+            q0 = Qubit(sender)
+            q1 = Qubit(sender)
+            q2 = Qubit(sender)
+            q3 = Qubit(sender)
+            #GHZ
+            q0.H()
+            q0.cnot(q1)
+            q1.cnot(q2)
+            q2.cnot(q3)
+            # teleport q1
+            epr1 = epr_sockets[0].create_keep()[0]
+            q1.cnot(epr1)
+            q1.H()
+            m11 = q1.measure()
+            m12 = epr1.measure()
+            # teleport q2
+            epr2 = epr_sockets[1].create_keep()[0]
+            q2.cnot(epr2)
+            q2.H()
+            m21 = q2.measure()
+            m22 = epr2.measure()
+            # teleport q3
+            epr3 = epr_sockets[2].create_keep()[0]
+            q3.cnot(epr3)
+            q3.H()
+            m31 = q3.measure()
+            m32 = epr3.measure()
+            # measure 
+            m = q0.measure()
+            
+    except Exception as e:
+        print(f"sender error: {e}")
+    print(f"sender: m={m}")
     # Send the correction information
     m11, m12 = int(m11), int(m12)
-    socket1.send_structured(StructuredMessage("Corrections", (m11, m12)))
-    #print(f"sender: m0={m0} m1={m1} m2={m2} m3={m3}")
+    sockets[0].send_structured(StructuredMessage("Corrections", (m11, m12)))
+    m21, m22 = int(m21), int(m22)
+    sockets[1].send_structured(StructuredMessage("Corrections", (m21, m22)))
+    m31, m32 = int(m21), int(m32)
+    sockets[2].send_structured(StructuredMessage("Corrections", (m31, m32)))
     
-    return {}
+    return {"0":0}
 
 
 if __name__ == "__main__": 
