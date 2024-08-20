@@ -14,12 +14,14 @@ AGENT3 = 3
 AGENTS = 4
 
 
-def protocol_RandomBit():
-    """ Protocol 1 of the paper, it is not necessary since here the use choice the receiver """
-    pass
+def protocol_RandomBit(s: int, agent: int):
+    """ Protocol 1 of the paper """
+    xs = []
+    
+    
 
 
-def generate_bits_with_xor(n, xi):
+def generate_bits_with_xor(n: int, xi: int):
     random_bits = [random.randint(0, 1) for _ in range(n-1)]
     current_xor = reduce(lambda x, y: x ^ y, random_bits)
     last_bit = current_xor ^ xi

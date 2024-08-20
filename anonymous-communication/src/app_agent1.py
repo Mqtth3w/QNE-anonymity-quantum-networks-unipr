@@ -9,6 +9,7 @@ from netqasm.sdk.external import NetQASMConnection, Socket
 
 def main(app_config=None, s=2, r=2):
     
+    #START STEP2 PROTOCOL
     # Create a socket to recv classical information
     socket = Socket("agent1", "sender", log_config=app_config.log_config)
     epr_socket = EPRSocket("sender")
@@ -32,6 +33,7 @@ def main(app_config=None, s=2, r=2):
     except Exception as e:
         print(f"agent2 error: {e}")
     print(f"agent1: m={m}")
+    #END STEP2
     
     return {"0":0}
 

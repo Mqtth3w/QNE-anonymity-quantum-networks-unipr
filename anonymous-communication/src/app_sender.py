@@ -9,6 +9,8 @@ from netqasm.sdk.classical_communication.message import StructuredMessage
 
 
 def main(app_config=None, s=2, r=2):
+    
+    #START STEP2 PROTOCOL
     sockets = [Socket("sender", a, log_config=app_config.log_config) for a in ["agent1", "agent2", "agent3"]]
     epr_sockets = [EPRSocket(a) for a in ["agent1", "agent2", "agent3"]]
     sender = NetQASMConnection(
@@ -58,6 +60,7 @@ def main(app_config=None, s=2, r=2):
     sockets[1].send_structured(StructuredMessage("Corrections", (m21, m22)))
     m31, m32 = int(m21), int(m32)
     sockets[2].send_structured(StructuredMessage("Corrections", (m31, m32)))
+    #END STEP2
     
     return {"0":0}
 
