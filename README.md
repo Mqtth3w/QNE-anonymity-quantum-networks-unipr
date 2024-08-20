@@ -4,7 +4,7 @@
 
 Project for Quantum Computing: Quantum Network Explorer (QNE) to Simulate Advanced Quantum Security Protocols. In particular, implement the paper "Anonimity for practical quantum networks".
 
-### QNE configuration (Linux)
+## QNE configuration (Linux)
 QNE require Linux or MacOS (up to date)
 
 Create a virtual environment for the project
