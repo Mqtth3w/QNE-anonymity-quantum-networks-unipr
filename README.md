@@ -27,7 +27,7 @@ Install packeges to build your projects/experiments
   ```
 ## Quick simulation
 ```bash
-cd anonymous-communication/src
+cd myenvQNE/anonymous-communication/src
 ```
 ```bash
 netqasm simulate
