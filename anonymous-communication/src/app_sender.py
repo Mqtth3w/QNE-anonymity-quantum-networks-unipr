@@ -2,12 +2,10 @@
 @author Matteo Gianvenuti https://github.com/mqtth3w
 @license GPL-3.0
 """
-
 from netqasm.sdk import EPRSocket, Qubit
 from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk.classical_communication.message import StructuredMessage
 from util import *
-
 
 def distribution_D(s: int):
     coins = []
@@ -17,20 +15,35 @@ def distribution_D(s: int):
         return 0
     return 1
 
-
 def protocol_Parity_2(sockets_send: List[int], sockets_recv: List[int], r_gen: List[int]) -> List[int]:
     r_rec = []
-    for j in range(1, AGENTS):
-        sockets_send[j - 1].send(str(r_gen[j]))
-    for j in range(1, AGENTS):
-        r_rec.append(int(sockets_recv[j - 1].recv()))
+    try:
+        for j in range(1, AGENTS): # send to all other agents
+            print(f"sender send to {j}")
+            sockets_send[j - 1].send(str(r_gen[j]))
+        for j in range(1, AGENTS): # receive from all other agents
+            print(f"sender receive from {j}")
+            r_rec.append(int(sockets_recv[j - 1].recv()))
+    except Exception as e:
+        print(f"sender error: {e}")
     return r_rec
+
+def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
+    #3.
+    zj = reduce(lambda x, y: x ^ y, r_rec)
+    bcbs.send(str(zj))
+    z_rec = [zj]
+    for i in range(1, AGENTS):
+        z_rec.append(int(bcbs.recv()[1]))
+    #4. #z
+    yi = reduce(lambda x, y: x ^ y, z_rec)
+    return yi
 
 
 def main(app_config=None, s=2, r=2):
     
     #START STEP1
-    print("sender: STEP1 receiver notification")
+    print(f"{app_config.app_name}: STEP1 receiver notification")
     try:
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["agent1", "agent2", "agent3"], app_config)
         sockets_send = [Socket("sender", f"agent{j}", log_config=app_config.log_config) for j in range(1, AGENTS)]
@@ -39,22 +52,23 @@ def main(app_config=None, s=2, r=2):
         # Notification
         for step in range(s):
             #(a)
-            p = protocol_Notification_a(SENDER, s, r, bcbs)
+            p = protocol_Notification_a(SENDER, s, r)
             #(b) (Parity)
             r_gen = protocol_Parity_1(AGENTS, p[SENDER])
             r_rec = protocol_Parity_2(sockets_send, sockets_recv, r_gen)
+            print(f"{app_config.app_name}: 2 done")
             ys.append(protocol_Parity_3_4(r_rec, bcbs))
         #(c)
         rec = 0 if max(ys) == 0 else 1
         #rec = protocol_Notification(SENDER, s, r, bcbs)
-        print("sender: rec={rec}")
+        print(f"{app_config.app_name}: rec={rec}")
         
     except Exception as e:
-        print(f"sender error: {e}")
+        print(f"{app_config.app_name} error: {e}")
     #END STEP1
     
     #START STEP2
-    print("sender: STEP2 shared GHZ")
+    print(f"{app_config.app_name}: STEP2 shared GHZ")
     sockets = [Socket("sender", a, log_config=app_config.log_config) for a in ["agent1", "agent2", "agent3"]]
     epr_sockets = [EPRSocket(a) for a in ["agent1", "agent2", "agent3"]]
     sender = NetQASMConnection(
@@ -93,7 +107,7 @@ def main(app_config=None, s=2, r=2):
         # measure 
         m = q0.measure()
             
-    print(f"sender: m={m}")
+    print(f"{app_config.app_name}: m={m}")
     # Send the correction information
     m11, m12 = int(m11), int(m12)
     sockets[0].send_structured(StructuredMessage("Corrections", (m11, m12)))

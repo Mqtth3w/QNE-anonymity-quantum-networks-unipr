@@ -8,7 +8,6 @@ from netqasm.sdk.external import Socket
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple, Type
 
-
 SENDER = 0
 AGENT1 = 1
 AGENT2 = 2
@@ -90,18 +89,14 @@ class BroadcastChannelBySockets():
                     )
         raise RuntimeError("No message broadcasted")
 
-
 def protocol_Anonymous_Entanglement():
     pass
-
 
 def protocol_Verification():
     pass
 
-
 def protocol_LogicalOR():
     pass
-
 
 def protocol_Parity_1(n: int, xi: int) ->  List[int]: #  generate_bits_with_xor
     random_bits = [random.randint(0, 1) for _ in range(n-1)]
@@ -110,7 +105,7 @@ def protocol_Parity_1(n: int, xi: int) ->  List[int]: #  generate_bits_with_xor
     random_bits.append(last_bit)
     return random_bits
 
-
+'''
 def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
     #3.
     zj = reduce(lambda x, y: x ^ y, r_rec)
@@ -122,9 +117,9 @@ def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> in
     #4. #z
     yi = reduce(lambda x, y: x ^ y, z_rec)
     return yi
+'''
 
-
-def protocol_Notification_a(agent: int, s: int, r: int, bcbs: BroadcastChannelBySockets) -> dict:
+def protocol_Notification_a(agent: int, s: int, r: int) -> dict:
     """Step (a) of protocol 2"""
     p = {0: 0, 1: 0, 2: 0, 3: 0}
     for j in range(AGENTS):
