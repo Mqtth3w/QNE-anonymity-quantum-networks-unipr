@@ -21,9 +21,13 @@ def distribution_D(s: int):
 def main(app_config=None, s=2, r=2):
     
     #START STEP1
+    print("sender: STEP1 receiver notification")
     try:
-        bcbs = BroadcastChannelBySockets(app_config.app_name, ["agent1", "agent2", "agent3"])
-        bcbs.send("troppo forte")
+        bcbs = BroadcastChannelBySockets(app_config.app_name, ["agent1", "agent2", "agent3"], app_config)
+        
+        rec = protocol_Notification(SENDER, s, r, bcbs)
+        print("sender: rec={rec}")
+        
     except Exception as e:
         print(f"sender error: {e}")
     #END STEP1

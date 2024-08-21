@@ -10,10 +10,13 @@ from util import *
 def main(app_config=None, s=2, r=2):
     
     #START STEP1
+    print("agent1: STEP1 receiver notification")
     try:
-        bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent2", "agent3"])
-        msg = bcbs.recv()
-        print(f"agent1: {msg}")
+        bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent2", "agent3"], app_config)
+        
+        rec = protocol_Notification(AGENT1, s, r, bcbs)
+        print("agent1: rec={rec}")
+        
     except Exception as e:
         print(f"agent1 error: {e}")
     #END STEP1
