@@ -18,14 +18,35 @@ def distribution_D(s: int):
     return 1
 
 
+def protocol_Parity_2(sockets_send: List[int], sockets_recv: List[int], r_gen: List[int]) -> List[int]:
+    r_rec = []
+    for j in range(1, AGENTS):
+        sockets_send[j - 1].send(str(r_gen[j]))
+    for j in range(1, AGENTS):
+        r_rec.append(int(sockets_recv[j - 1].recv()))
+    return r_rec
+
+
 def main(app_config=None, s=2, r=2):
     
     #START STEP1
     print("sender: STEP1 receiver notification")
     try:
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["agent1", "agent2", "agent3"], app_config)
-        
-        rec = protocol_Notification(SENDER, s, r, bcbs)
+        sockets_send = [Socket("sender", f"agent{j}", log_config=app_config.log_config) for j in range(1, AGENTS)]
+        sockets_recv = [Socket(f"agent{j}", "sender", log_config=app_config.log_config) for j in range(1, AGENTS)]
+        ys = []
+        # Notification
+        for step in range(s):
+            #(a)
+            p = protocol_Notification_a(SENDER, s, r, bcbs)
+            #(b) (Parity)
+            r_gen = protocol_Parity_1(AGENTS, p[SENDER])
+            r_rec = protocol_Parity_2(sockets_send, sockets_recv, r_gen)
+            ys.append(protocol_Parity_3_4(r_rec, bcbs))
+        #(c)
+        rec = 0 if max(ys) == 0 else 1
+        #rec = protocol_Notification(SENDER, s, r, bcbs)
         print("sender: rec={rec}")
         
     except Exception as e:

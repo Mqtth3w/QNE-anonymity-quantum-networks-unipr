@@ -7,14 +7,40 @@ from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection, Socket
 from util import *
 
+
+def protocol_Parity_2(sockets_send: List[int], sockets_recv: List[int], r_gen: List[int]) -> List[int]:
+    r_rec = []
+    r_rec.append(int(sockets_recv[0].recv()))
+    for j in range(AGENTS):
+        if j != agent:
+            sockets_send[j].send(str(r_gen[j]))
+    for j in range(2, AGENTS):
+        r_rec.append(int(sockets_recv[j].recv()))
+    return r_rec
+
+
 def main(app_config=None, s=2, r=2):
     
     #START STEP1
     print("agent1: STEP1 receiver notification")
     try:
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent2", "agent3"], app_config)
-        
-        rec = protocol_Notification(AGENT1, s, r, bcbs)
+        sockets_send = [Socket("agent1", f"agent{j}", log_config=app_config.log_config) for j in range(2, AGENTS)]
+        sockets_send.insert(0, Socket("agent1", "sender", log_config=app_config.log_config))
+        sockets_recv = [Socket(f"agent{j}", "agent1", log_config=app_config.log_config) for j in range(2, AGENTS)]
+        sockets_recv.insert(0, Socket("sender", "agent1", log_config=app_config.log_config))
+        ys = []
+        # Notification
+        for step in range(s):
+            #(a)
+            p = protocol_Notification_a(AGENT1, s, r, bcbs)
+            #(b) (Parity)
+            r_gen = protocol_Parity_1(AGENTS, p[AGENT1])
+            r_rec = protocol_Parity_2(sockets_send, sockets_recv, r_gen)
+            ys.append(protocol_Parity_3_4(r_rec, bcbs))
+        #(c)
+        rec = 0 if max(ys) == 0 else 1
+        #rec = protocol_Notification(AGENT1, s, r, bcbs)
         print("agent1: rec={rec}")
         
     except Exception as e:

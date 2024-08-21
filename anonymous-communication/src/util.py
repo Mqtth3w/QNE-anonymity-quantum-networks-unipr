@@ -89,14 +89,39 @@ class BroadcastChannelBySockets():
                         "Timeout while trying to receive broadcasted message"
                     )
         raise RuntimeError("No message broadcasted")
-    
 
-def generate_bits_with_xor(n: int, xi: int) ->  List[int]:
+
+def protocol_Anonymous_Entanglement():
+    pass
+
+
+def protocol_Verification():
+    pass
+
+
+def protocol_LogicalOR():
+    pass
+
+
+def protocol_Parity_1(n: int, xi: int) ->  List[int]: #  generate_bits_with_xor
     random_bits = [random.randint(0, 1) for _ in range(n-1)]
     current_xor = reduce(lambda x, y: x ^ y, random_bits)
     last_bit = current_xor ^ xi
     random_bits.append(last_bit)
     return random_bits
+
+
+def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
+    #3.
+    zj = reduce(lambda x, y: x ^ y, r_rec)
+    bcbs.send(str(zj))
+    print("3 done")
+    z_rec = [zj]
+    for i in range(AGENTS):
+        z_rec.append(int(bcbs.recv()[1]))
+    #4. #z
+    yi = reduce(lambda x, y: x ^ y, z_rec)
+    return yi
 
 
 def protocol_Notification_a(agent: int, s: int, r: int, bcbs: BroadcastChannelBySockets) -> dict:
@@ -121,48 +146,50 @@ def protocol_Parity(xi: int, agent: int, bcbs: BroadcastChannelBySockets) -> int
     #2.
     r_rec = []
     log_config = bcbs.get_app_config().log_config
+    sockets_send = []
+    sockets_recv = []
     if agent == AGENT1:
         print("1111111")
-        socket = Socket("sender", "agent1", log_config=log_config)
-        r_rec.append(int(socket.recv()))
+        sockets_recv.append(Socket("sender", "agent1", log_config=log_config))
+        r_rec.append(int(sockets_recv[-1].recv()))
         print("1111111")
         for j in range(AGENTS):
             if j != agent:
-                socket = Socket("agent1", "sender" if j == SENDER else f"agent{agent}", log_config=log_config)
-                socket.send(str(r_gen[j]))
+                sockets_send.append(Socket("agent1", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
+                sockets_send[-1].send(str(r_gen[j]))
         for j in range(2, AGENTS):
             print("1111111")
-            socket = Socket(f"agent{agent}", "agent1", log_config=log_config)
-            r_rec.append(int(socket.recv()))
+            sockets_recv.append(Socket(f"agent{j}", "agent1", log_config=log_config))
+            r_rec.append(int(sockets_recv[-1].recv()))
     elif agent == AGENT2:
         print("222222")
         for j in range(AGENTS - 2):
             print("222222")
-            socket = Socket("sender" if j == SENDER else f"agent{agent}", "agent2", log_config=log_config)
-            r_rec.append(int(socket.recv()))
+            sockets_recv.append(Socket("sender" if j == SENDER else f"agent{j}", "agent2", log_config=log_config))
+            r_rec.append(int(sockets_recv[-1].recv()))
         for j in range(AGENTS):
             if j != agent:
-                socket = Socket("agent2", "sender" if j == SENDER else f"agent{agent}", log_config=log_config)
-                socket.send(str(r_gen[j]))
-        socket = Socket("agent3", "agent2", log_config=log_config)
-        r_rec.append(int(socket.recv()))
+                sockets_send.append(Socket("agent2", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
+                sockets_send[-1].send(str(r_gen[j]))
+        sockets_recv.append(Socket("agent3", "agent2", log_config=log_config))
+        r_rec.append(int(sockets_recv[-1].recv()))
     elif agent == AGENT3:
         print("33333")
         for j in range(AGENTS - 1):
             print("33333")
-            socket = Socket("sender" if j == SENDER else f"agent{agent}", "agent3", log_config=log_config)
-            r_rec.append(int(socket.recv()))
+            sockets_recv.append(Socket("sender" if j == SENDER else f"agent{j}", "agent3", log_config=log_config))
+            r_rec.append(int(sockets_recv[-1].recv()))
         for j in range(AGENTS - 1):
-            socket = Socket("agent3", "sender" if j == SENDER else f"agent{agent}", log_config=log_config)
-            socket.send(str(r_gen[j]))
+            sockets_send.append(Socket("agent3", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
+            sockets_send[-1].send(str(r_gen[j]))
     elif agent == SENDER:
         print("000000")
         for j in range(1, AGENTS):
-            socket = Socket("sender", f"agent{agent}", log_config=log_config)
-            socket.send(str(r_gen[j]))
+            sockets_send.append(Socket("sender", f"agent{j}", log_config=log_config))
+            sockets_send[-1].send(str(r_gen[j]))
         for j in range(1, AGENTS):
-            socket = Socket(f"agent{agent}", "sender", log_config=log_config)
-            r_rec.append(int(socket.recv()))
+            sockets_recv.append(Socket(f"agent{j}", "sender", log_config=log_config))
+            r_rec.append(int(sockets_recv[-1].recv()))
             
     print("2 done")
     #3.
@@ -199,17 +226,6 @@ def protocol_Notification(agent: int, s: int, r: int, bcbs: BroadcastChannelBySo
         return 0
     return 1
 '''
-
-def protocol_Anonymous_Entanglement():
-    pass
-
-
-def protocol_Verification():
-    pass
-
-
-def protocol_LogicalOR():
-    pass
 
 
 '''
