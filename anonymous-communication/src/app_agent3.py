@@ -6,15 +6,12 @@ from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection, Socket
 from util import *
 
-def protocol_Parity_2(sockets_send: List[int], sockets_recv: List[int], r_gen: List[int]) -> List[int]:
-    r_rec = []
+def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
+    r_rec = [r_gen[AGENT3]]
     try:
-        for j in range(AGENTS - 1): # receive from all other agents
-            print(f"agent3 receive from {j}")
-            r_rec.append(int(sockets_recv[j].recv()))
-        for j in range(AGENTS - 1): # send to all other agents
-            print(f"agent3 send to {j}")
-            sockets_send[j].send(str(r_gen[j]))
+        for i in range(3):
+            r_rec.append(int(bcbs.recv()[1][AGENT3]))
+        bcbs.send(''.join(str(bit) for bit in r_gen))
     except Exception as e:
         print(f"agent3 error: {e}")
     return r_rec
@@ -23,7 +20,7 @@ def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> in
     #3.
     zj = reduce(lambda x, y: x ^ y, r_rec)
     z_rec = [zj]
-    for i in range(AGENTS - 1):
+    for i in range(3):
         z_rec.append(int(bcbs.recv()[1]))
     bcbs.send(str(zj))
     #4. #z
@@ -36,8 +33,6 @@ def main(app_config=None, s=2, r=2):
     print(f"{app_config.app_name}: STEP1 receiver notification")
     try:
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent1", "agent2"], app_config)
-        sockets_send = [Socket("agent3", "sender" if j == SENDER else f"agent{j}", log_config=app_config.log_config) for j in range(AGENTS - 1)]
-        sockets_recv = [Socket("sender" if j == SENDER else f"agent{j}", "agent3", log_config=app_config.log_config) for j in range(AGENTS - 1)]
         ys = []
         # Notification
         for step in range(s):
@@ -45,7 +40,7 @@ def main(app_config=None, s=2, r=2):
             p = protocol_Notification_a(AGENT3, s, r)
             #(b) (Parity)
             r_gen = protocol_Parity_1(AGENTS, p[AGENT3])
-            r_rec = protocol_Parity_2(sockets_send, sockets_recv, r_gen)
+            r_rec = protocol_Parity_2(r_gen, bcbs)
             print(f"{app_config.app_name}: 2 done")
             ys.append(protocol_Parity_3_4(r_rec, bcbs))
         #(c)
