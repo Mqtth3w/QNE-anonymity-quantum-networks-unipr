@@ -47,7 +47,7 @@ class BroadcastChannelBySockets():
     def send(self, msg: str) -> None:
         """Broadcast a message to all remote nodes."""
         for socket in self._sockets.values():
-            socket.send(msg=msg+"EOF")
+            socket.send(msg=msg)
 
     def recv(
         self, block: bool = True, timeout: Optional[float] = None
