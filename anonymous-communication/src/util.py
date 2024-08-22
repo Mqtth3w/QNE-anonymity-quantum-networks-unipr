@@ -95,16 +95,114 @@ def protocol_Anonymous_Entanglement():
 def protocol_Verification():
     pass
 
-def protocol_LogicalOR():
-    pass
+def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: int) -> int:
+    ys = []
+    for step in range(s):
+        for order in [0, 1, 2, 3]:
+            #(a)
+            p = 0 if xi == 0 else random.choice([0, 1])
+            #(b)
+            ys.append(protocol_Parity(p, bcbs, agent, order))
+    yi = 0 if max(ys) == 0 else 1
+    return yi
 
+def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order: int = 0) -> int:
+    orders = {0: [0, 1, 2, 3],
+              1: [1, 2, 3, 0],
+              2: [2, 3, 0, 1],
+              3: [3, 0, 1, 2]}
+    #1.
+    random.seed(agent)
+    r_gen = [random.randint(0, 1) for _ in range(AGENTS-1)]
+    current_xor = reduce(lambda x, y: x ^ y, r_gen)
+    last_bit = current_xor ^ xi
+    r_gen.append(last_bit)
+    #2.
+    r_rec = [r_gen[agent]]
+    if orders[order][agent] == 0:
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        for i in range(3):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[agent][1]))
+        #3.
+        zj = reduce(lambda x, y: x ^ y, r_rec)
+        bcbs.send(str(zj))
+        z_rec = [zj]
+        for i in range(3):
+            z_rec.append(int(bcbs.recv()[1]))
+        #4. #z
+        yi = reduce(lambda x, y: x ^ y, z_rec)
+    elif orders[order][agent] == 1:
+        tmp = []
+        for j in range(4):
+            tmp.append(bcbs.recv())
+        r_rec.append(int(tmp[agent][1]))
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        for i in range(2):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[agent][1]))
+        #3.
+        zj = reduce(lambda x, y: x ^ y, r_rec)
+        z_rec = [zj]
+        z_rec.append(int(bcbs.recv()[1]))
+        bcbs.send(str(zj))
+        for i in range(2):
+            z_rec.append(int(bcbs.recv()[1]))
+        #4. #z
+        yi = reduce(lambda x, y: x ^ y, z_rec)
+    elif orders[order][agent] == 2:
+        for i in range(2):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[agent][1]))
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        tmp = []
+        for j in range(4):
+            tmp.append(bcbs.recv())
+        r_rec.append(int(tmp[agent][1]))
+        #3.
+        zj = reduce(lambda x, y: x ^ y, r_rec)
+        z_rec = [zj]
+        for i in range(2):
+            z_rec.append(int(bcbs.recv()[1]))
+        bcbs.send(str(zj))
+        z_rec.append(int(bcbs.recv()[1]))
+        #4. #z
+        yi = reduce(lambda x, y: x ^ y, z_rec)
+    elif orders[order][agent] == 3:
+        for i in range(3):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[agent][1]))
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        #3.
+        zj = reduce(lambda x, y: x ^ y, r_rec)
+        z_rec = [zj]
+        for i in range(3):
+            z_rec.append(int(bcbs.recv()[1]))
+        bcbs.send(str(zj))
+        #4. #z
+        yi = reduce(lambda x, y: x ^ y, z_rec)
+    return yi
+
+'''
 def protocol_Parity_1(n: int, xi: int) ->  List[int]: #  generate_bits_with_xor
     random_bits = [random.randint(0, 1) for _ in range(n-1)]
     current_xor = reduce(lambda x, y: x ^ y, random_bits)
     last_bit = current_xor ^ xi
     random_bits.append(last_bit)
     return random_bits
-
+'''
 '''
 def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
     #3.
@@ -119,7 +217,7 @@ def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> in
     return yi
 '''
 
-def protocol_Notification_a(agent: int, s: int, r: int) -> dict:
+def protocol_Notification_a(agent: int, r: int) -> dict:
     """Step (a) of protocol 2"""
     p = {0: 0, 1: 0, 2: 0, 3: 0}
     for j in range(AGENTS):

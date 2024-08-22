@@ -6,6 +6,7 @@ from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection#, Socket
 from util import *
 
+'''
 def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
     r_rec = [r_gen[AGENT3]]
     try:
@@ -19,16 +20,16 @@ def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List
         for elem in r_gen:
             bcbs.send(str(elem))
         
-        '''
-        print(f"agent3 r_gen: {r_gen}")
-        for i in range(3):
-            tmp = bcbs.recv()[1]
-            print(f"agent3 tmp: {tmp}")
-            r_rec.append(int(tmp[AGENT3]))
-        st = ''.join(str(bit) for bit in r_gen)
-        print(f"agent3 st: {st}")
-        bcbs.send(st)
-        '''
+        
+        #print(f"agent3 r_gen: {r_gen}")
+        #for i in range(3):
+        #    tmp = bcbs.recv()[1]
+        #    print(f"agent3 tmp: {tmp}")
+        #    r_rec.append(int(tmp[AGENT3]))
+        #st = ''.join(str(bit) for bit in r_gen)
+        #print(f"agent3 st: {st}")
+        #bcbs.send(st)
+        
     except Exception as e:
         print(f"agent3 error: {e}")
     return r_rec
@@ -43,8 +44,9 @@ def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> in
     #4. #z
     yi = reduce(lambda x, y: x ^ y, z_rec)
     return yi
-
-def main(app_config=None, s=6, r=2):
+'''
+        
+def main(app_config=None, s=2, r=2):
     
     #START STEP1
     print(f"{app_config.app_name}: STEP1 receiver notification s={s} r={r}")
@@ -54,11 +56,12 @@ def main(app_config=None, s=6, r=2):
         # Notification
         for step in range(s):
             #(a)
-            p = protocol_Notification_a(AGENT3, s, r)
+            p = protocol_Notification_a(AGENT3, r)
             #(b) (Parity)
-            r_gen = protocol_Parity_1(AGENTS, p[AGENT3])
-            r_rec = protocol_Parity_2(r_gen, bcbs)
-            ys.append(protocol_Parity_3_4(r_rec, bcbs))
+            #r_gen = protocol_Parity_1(AGENTS, p[AGENT3])
+            #r_rec = protocol_Parity_2(r_gen, bcbs)
+            #ys.append(protocol_Parity_3_4(r_rec, bcbs))
+            ys.append(protocol_Parity(p[AGENT3], bcbs, AGENT3))
         #(c)
         rec = 0 if max(ys) == 0 else 1
         #rec = protocol_Notification(AGENT3, s, r, bcbs)
@@ -94,11 +97,13 @@ def main(app_config=None, s=6, r=2):
     
     
     #START STEP3
+    print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
     #(a)
     #RandomBit 1.
     xi = 0
     #RandomBit 2. (LogicalOR)
-    
+    x = protocol_LogicalOR(xi, s, bcbs, SENDER)
+    print(f"{app_config.app_name}: x={x}")
     #END STEP3
     
     
