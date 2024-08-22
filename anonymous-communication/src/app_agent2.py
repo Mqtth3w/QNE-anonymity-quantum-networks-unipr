@@ -3,16 +3,23 @@
 @license GPL-3.0
 """
 from netqasm.sdk import EPRSocket
-from netqasm.sdk.external import NetQASMConnection, Socket
+from netqasm.sdk.external import NetQASMConnection#, Socket
 from util import *
 
 def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
     r_rec = [r_gen[AGENT2]]
     try:
+        print(f"agent2 r_gen: {r_gen}")
         for i in range(2):
-            r_rec.append(int(bcbs.recv()[1][AGENT2]))
-        bcbs.send(''.join(str(bit) for bit in r_gen))
-        r_rec.append(int(bcbs.recv()[1][AGENT2]))
+            tmp = bcbs.recv()[1]
+            print(f"agent2 tmp: {tmp}")
+            r_rec.append(int(tmp[AGENT2]))
+        st = ''.join(str(bit) for bit in r_gen)
+        print(f"agent2 st: {st}")
+        bcbs.send(st)
+        tmp = bcbs.recv()[1]
+        print(f"agent2 tmp: {tmp}")
+        r_rec.append(int(tmp[AGENT2]))
     except Exception as e:
         print(f"agent2 error: {e}")
     return r_rec
@@ -43,7 +50,6 @@ def main(app_config=None, s=2, r=2):
             #(b) (Parity)
             r_gen = protocol_Parity_1(AGENTS, p[AGENT2])
             r_rec = protocol_Parity_2(r_gen, bcbs)
-            print(f"{app_config.app_name}: 2 done")
             ys.append(protocol_Parity_3_4(r_rec, bcbs))
         #(c)
         rec = 0 if max(ys) == 0 else 1
