@@ -18,6 +18,18 @@ def distribution_D(s: int):
 def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
     r_rec = [r_gen[SENDER]]
     try:
+        #r_gen.pop(SENDER)
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        
+        for i in range(3):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[SENDER][1]))
+            
+        
+        '''
         print(f"agent0 r_gen: {r_gen}")
         st = ''.join(str(bit) for bit in r_gen)
         print(f"agent0 st: {st}")
@@ -26,6 +38,7 @@ def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List
             tmp = bcbs.recv()[1]
             print(f"agent0 tmp: {tmp}")
             r_rec.append(int(tmp[SENDER]))
+        '''
     except Exception as e:
         print(f"sender error: {e}")
     return r_rec
@@ -105,7 +118,7 @@ def main(app_config=None, s=2, r=2):
         m32 = epr3.measure()
         # measure 
         m = q0.measure()
-            
+    
     print(f"{app_config.app_name}: m={m}")
     # Send the correction information
     m11, m12 = int(m11), int(m12)

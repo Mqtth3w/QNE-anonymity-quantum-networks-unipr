@@ -9,6 +9,21 @@ from util import *
 def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
     r_rec = [r_gen[AGENT1]]
     try:
+        tmp = []
+        for j in range(4):
+            tmp.append(bcbs.recv())
+        r_rec.append(int(tmp[AGENT1][1]))
+        
+        for elem in r_gen:
+            bcbs.send(str(elem))
+        
+        for i in range(2):
+            tmp = []
+            for j in range(4):
+                tmp.append(bcbs.recv())
+            r_rec.append(int(tmp[AGENT1][1]))
+        
+        '''
         print(f"agent1 r_gen: {r_gen}")
         tmp = bcbs.recv()[1]
         print(f"agent1 tmp: {tmp}")
@@ -20,6 +35,7 @@ def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List
             tmp = bcbs.recv()[1]
             print(f"agent1 tmp: {tmp}")
             r_rec.append(int(tmp[AGENT1]))
+        '''
     except Exception as e:
         print(f"agent1 error: {e}")
     return r_rec
