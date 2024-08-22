@@ -102,7 +102,7 @@ def main(app_config=None, s=2, r=2):
     #RandomBit 1.
     xi = 0
     #RandomBit 2. (LogicalOR)
-    x = protocol_LogicalOR(xi, s, bcbs, SENDER)
+    x = protocol_LogicalOR(xi, s, bcbs, AGENT3)
     print(f"{app_config.app_name}: x={x}")
     #END STEP3
     

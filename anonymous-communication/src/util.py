@@ -97,8 +97,9 @@ def protocol_Verification():
 
 def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: int) -> int:
     ys = []
-    for step in range(s):
-        for order in [0, 1, 2, 3]:
+    for order in [0, 1, 2, 3]:
+        for step in range(s):
+            print(f"agent{agent} order={order} step={step}")
             #(a)
             p = 0 if xi == 0 else random.choice([0, 1])
             #(b)
