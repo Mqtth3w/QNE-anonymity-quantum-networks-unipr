@@ -119,30 +119,36 @@ def main(app_config=None, s=2, r=2):
         m31 = q3.measure()
         m32 = epr3.measure()
         # measure 
-        m = q0.measure()
-    
-    print(f"{app_config.app_name}: m={m}")
-    # Send the correction information
-    m11, m12 = int(m11), int(m12)
-    sockets[0].send_structured(StructuredMessage("Corrections", (m11, m12)))
-    m21, m22 = int(m21), int(m22)
-    sockets[1].send_structured(StructuredMessage("Corrections", (m21, m22)))
-    m31, m32 = int(m21), int(m32)
-    sockets[2].send_structured(StructuredMessage("Corrections", (m31, m32)))
+        #m = q0.measure()
+        sender.flush()
+        #print(f"{app_config.app_name}: m={m}")
+        # Send the correction information
+        m11, m12 = int(m11), int(m12)
+        sockets[0].send_structured(StructuredMessage("Corrections", (m11, m12)))
+        m21, m22 = int(m21), int(m22)
+        sockets[1].send_structured(StructuredMessage("Corrections", (m21, m22)))
+        m31, m32 = int(m21), int(m32)
+        sockets[2].send_structured(StructuredMessage("Corrections", (m31, m32)))
     #END STEP2
-    
-    
-    #START STEP3
-    print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
-    #(a)
-    #RandomBit 1.
-    xi = distribution_D(s)
-    #RandomBit 2. (LogicalOR)
-    x = protocol_LogicalOR(xi, s, bcbs, SENDER)
-    print(f"{app_config.app_name}: x={x}")
-    
-    
-    #END STEP3
+        
+        #START STEP3
+        print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
+        #(a)
+        #RandomBit 1.
+        xi = distribution_D(s)
+        #RandomBit 2. (LogicalOR)
+        x = protocol_LogicalOR(xi, s, bcbs, SENDER)
+        #(b)
+        if x == 1:
+            print(f"{app_config.app_name}: x={x} Anonymous Entanglement")
+            mm = q0.measure()
+            sender.flush()
+            print(f"{app_config.app_name}: mm={mm}")
+        
+        else: # x == 0
+            print(f"{app_config.app_name}: x={x} RandomAgent and Verification")
+            
+        #END STEP3
     
     
     return {"0":0}

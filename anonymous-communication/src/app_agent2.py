@@ -99,20 +99,28 @@ def main(app_config=None, s=2, r=2):
             q2.X()
         if m1 == 1:
             q2.Z()
-        m = q2.measure()
-    print(f"{app_config.app_name}: m={m}")    
+        #m = q2.measure()
+        #agent2.flush()
+        #print(f"{app_config.app_name}: m={m}")    
     #END STEP2
     
-    
-    #START STEP3
-    print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
-    #(a)
-    #RandomBit 1.
-    xi = 0
-    #RandomBit 2. (LogicalOR)
-    x = protocol_LogicalOR(xi, s, bcbs, AGENT2)
-    print(f"{app_config.app_name}: x={x}")
-    #END STEP3
+        #START STEP3
+        print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
+        #(a)
+        #RandomBit 1.
+        xi = 0
+        #RandomBit 2. (LogicalOR)
+        x = protocol_LogicalOR(xi, s, bcbs, AGENT2)
+        #(b)
+        if x == 1:
+            print(f"{app_config.app_name}: x={x} Anonymous Entanglement")
+            mm = q2.measure()
+            agent2.flush()
+            print(f"{app_config.app_name}: mm={mm}")
+        else: # x == 0
+            print(f"{app_config.app_name}: x={x} RandomAgent and Verification")
+            
+        #END STEP3
     
     
     return {"0":0}
