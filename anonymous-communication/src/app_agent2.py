@@ -53,10 +53,10 @@ def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> in
     yi = reduce(lambda x, y: x ^ y, z_rec)
     return yi
 
-def main(app_config=None, s=2, r=2):
+def main(app_config=None, s=6, r=2):
     
     #START STEP1
-    print(f"{app_config.app_name}: STEP1 receiver notification")
+    print(f"{app_config.app_name}: STEP1 receiver notification s={s} r={r}")
     try:
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent1", "agent3"], app_config)
         ys = []
