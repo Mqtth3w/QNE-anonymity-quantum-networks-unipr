@@ -195,112 +195,10 @@ def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order:
         #4. #z
         yi = reduce(lambda x, y: x ^ y, z_rec)
     return yi
-
-'''
-def protocol_Parity_1(n: int, xi: int) ->  List[int]: #  generate_bits_with_xor
-    random_bits = [random.randint(0, 1) for _ in range(n-1)]
-    current_xor = reduce(lambda x, y: x ^ y, random_bits)
-    last_bit = current_xor ^ xi
-    random_bits.append(last_bit)
-    return random_bits
-'''
-'''
-def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
-    #3.
-    zj = reduce(lambda x, y: x ^ y, r_rec)
-    bcbs.send(str(zj))
-    print("3 done")
-    z_rec = [zj]
-    for i in range(AGENTS):
-        z_rec.append(int(bcbs.recv()[1]))
-    #4. #z
-    yi = reduce(lambda x, y: x ^ y, z_rec)
-    return yi
-'''
-
-def protocol_Notification_a(agent: int, r: int) -> dict:
-    """Step (a) of protocol 2"""
-    p = {0: 0, 1: 0, 2: 0, 3: 0}
-    for j in range(AGENTS):
-        if j != agent:
-            if agent == r and j == SENDER:
-                p[j] = random.choice([0, 1])
-            else:
-                p[j] = 0
-        else:
-            p[j] = 0
-    return p
-
-'''
-def protocol_Parity(xi: int, agent: int, bcbs: BroadcastChannelBySockets) -> int:
-    """Protocol 6"""
-    #1.
-    r_gen = generate_bits_with_xor(AGENTS, xi)
-    print("1 done")
-    #2.
-    r_rec = []
-    log_config = bcbs.get_app_config().log_config
-    sockets_send = []
-    sockets_recv = []
-    if agent == AGENT1:
-        print("1111111")
-        sockets_recv.append(Socket("sender", "agent1", log_config=log_config))
-        r_rec.append(int(sockets_recv[-1].recv()))
-        print("1111111")
-        for j in range(AGENTS):
-            if j != agent:
-                sockets_send.append(Socket("agent1", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
-                sockets_send[-1].send(str(r_gen[j]))
-        for j in range(2, AGENTS):
-            print("1111111")
-            sockets_recv.append(Socket(f"agent{j}", "agent1", log_config=log_config))
-            r_rec.append(int(sockets_recv[-1].recv()))
-    elif agent == AGENT2:
-        print("222222")
-        for j in range(AGENTS - 2):
-            print("222222")
-            sockets_recv.append(Socket("sender" if j == SENDER else f"agent{j}", "agent2", log_config=log_config))
-            r_rec.append(int(sockets_recv[-1].recv()))
-        for j in range(AGENTS):
-            if j != agent:
-                sockets_send.append(Socket("agent2", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
-                sockets_send[-1].send(str(r_gen[j]))
-        sockets_recv.append(Socket("agent3", "agent2", log_config=log_config))
-        r_rec.append(int(sockets_recv[-1].recv()))
-    elif agent == AGENT3:
-        print("33333")
-        for j in range(AGENTS - 1):
-            print("33333")
-            sockets_recv.append(Socket("sender" if j == SENDER else f"agent{j}", "agent3", log_config=log_config))
-            r_rec.append(int(sockets_recv[-1].recv()))
-        for j in range(AGENTS - 1):
-            sockets_send.append(Socket("agent3", "sender" if j == SENDER else f"agent{j}", log_config=log_config))
-            sockets_send[-1].send(str(r_gen[j]))
-    elif agent == SENDER:
-        print("000000")
-        for j in range(1, AGENTS):
-            sockets_send.append(Socket("sender", f"agent{j}", log_config=log_config))
-            sockets_send[-1].send(str(r_gen[j]))
-        for j in range(1, AGENTS):
-            sockets_recv.append(Socket(f"agent{j}", "sender", log_config=log_config))
-            r_rec.append(int(sockets_recv[-1].recv()))
-            
-    print("2 done")
-    #3.
-    zj = reduce(lambda x, y: x ^ y, r_rec)
-    bcbs.send(str(zj))
-    print("3 done")
-    z_rec = [zj]
-    for i in range(AGENTS):
-        z_rec.append(int(bcbs.recv()[1]))
-    #4. #z
-    yi = reduce(lambda x, y: x ^ y, z_rec)
-    return yi
     
-    
-def protocol_Notification(agent: int, s: int, r: int, bcbs: BroadcastChannelBySockets) -> int:
+def protocol_Notification(s: int, r: int, bcbs: BroadcastChannelBySockets, agent: int) -> int:
     """Protocol 2"""
-    p = {0: 0, 1: 0, 2: 0, 3: 0}
+    p = [0, 0, 0, 0]
     ys = []
     for step in range(s): # c)
         print(f"agent {agent} step {step}")
@@ -314,32 +212,9 @@ def protocol_Notification(agent: int, s: int, r: int, bcbs: BroadcastChannelBySo
             else:
                 p[j] = 0
         # b)
-        ys.append(protocol_Parity(p[agent], agent, bcbs))
+        ys.append(protocol_Parity(p[agent], bcbs, agent))
     # c)
     if max(ys) == 0:
         return 0
     return 1
-'''
 
-
-'''
-        qubits = [Qubit(sender) for i in range(4)]
-        #GHZ
-        qubits[0].H()
-        qubits[0].cnot(qubits[1])
-        qubits[1].cnot(qubits[2])
-        qubits[2].cnot(qubits[3])
-        # Teleport qubits 1, 2, 3 to the agents
-        eprs = [epr_sockets[i].create_keep()[0] for i in range(3)]
-        #sender.flush()
-        ms = []
-        for i in range(1, 4):
-            qubits[i].cnot(eprs[i - 1])
-            qubits[i].H()
-            m1 = qubits[i].measure()
-            m2 = eprs[i - 1].measure()
-            sender.flush()
-            m1, m2 = int(m1), int(m2)
-            sockets[i - 1].send_structured(StructuredMessage("Corrections", (m1, m2)))
-
-'''

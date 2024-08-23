@@ -5,116 +5,65 @@
 from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection#, Socket
 from util import *
-
-'''
-def protocol_Parity_2(r_gen: List[int], bcbs: BroadcastChannelBySockets) -> List[int]:
-    r_rec = [r_gen[AGENT3]]
-    try:
-        
-        for i in range(3):
-            tmp = []
-            for j in range(4):
-                tmp.append(bcbs.recv())
-            r_rec.append(int(tmp[AGENT3][1]))
-            
-        for elem in r_gen:
-            bcbs.send(str(elem))
-        
-        
-        #print(f"agent3 r_gen: {r_gen}")
-        #for i in range(3):
-        #    tmp = bcbs.recv()[1]
-        #    print(f"agent3 tmp: {tmp}")
-        #    r_rec.append(int(tmp[AGENT3]))
-        #st = ''.join(str(bit) for bit in r_gen)
-        #print(f"agent3 st: {st}")
-        #bcbs.send(st)
-        
-    except Exception as e:
-        print(f"agent3 error: {e}")
-    return r_rec
-
-def protocol_Parity_3_4(r_rec: List[int], bcbs: BroadcastChannelBySockets) -> int:
-    #3.
-    zj = reduce(lambda x, y: x ^ y, r_rec)
-    z_rec = [zj]
-    for i in range(3):
-        z_rec.append(int(bcbs.recv()[1]))
-    bcbs.send(str(zj))
-    #4. #z
-    yi = reduce(lambda x, y: x ^ y, z_rec)
-    return yi
-'''
         
 def main(app_config=None, s=2, r=2):
     
-    #START STEP1
-    print(f"{app_config.app_name}: STEP1 receiver notification s={s} r={r}")
     try:
+        #START STEP1
+        print(f"{app_config.app_name}: STEP1 receiver notification s={s} r={r}.")
         bcbs = BroadcastChannelBySockets(app_config.app_name, ["sender", "agent1", "agent2"], app_config)
-        ys = []
-        # Notification
-        for step in range(s):
-            #(a)
-            p = protocol_Notification_a(AGENT3, r)
-            #(b) (Parity)
-            #r_gen = protocol_Parity_1(AGENTS, p[AGENT3])
-            #r_rec = protocol_Parity_2(r_gen, bcbs)
-            #ys.append(protocol_Parity_3_4(r_rec, bcbs))
-            ys.append(protocol_Parity(p[AGENT3], bcbs, AGENT3))
-        #(c)
-        rec = 0 if max(ys) == 0 else 1
-        #rec = protocol_Notification(AGENT3, s, r, bcbs)
-        print(f"{app_config.app_name}: rec={rec}")
-        
-    except Exception as e:
-        print(f"{app_config.app_name} error: {e}")
-    #END STEP1
+        rec = protocol_Notification(s, r, bcbs, AGENT3)
+        print(f"{app_config.app_name}: rec={rec}.")
+        #END STEP1
     
-    #START STEP2
-    print(f"{app_config.app_name}: STEP2 shared GHZ")
-    # Create a socket to recv classical information
-    socket = Socket("agent3", "sender", log_config=app_config.log_config)
-    epr_socket = EPRSocket("sender")
-    agent3 = NetQASMConnection(
-        app_name=app_config.app_name,
-        log_config=app_config.log_config,
-        epr_sockets=[epr_socket],
-    )
-    # teleportation to receive the GHZ qubit
-    with agent3:
-        q3 = epr_socket.recv_keep()[0]
-        agent3.flush()
-        # Get the corrections
-        m1, m2 = socket.recv_structured().payload
-        if m2 == 1:
-            q3.X()
-        if m1 == 1:
-            q3.Z()
-        #m = q3.measure()
-        #agent3.flush()
-        #print(f"{app_config.app_name}: m={m}")
-    #END STEP2
-    
-        #START STEP3
-        print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement")
-        #(a)
-        #RandomBit 1.
-        xi = 0
-        #RandomBit 2. (LogicalOR)
-        x = protocol_LogicalOR(xi, s, bcbs, AGENT3)
-        #(b)
-        if x == 1:
-            print(f"{app_config.app_name}: x={x} Anonymous Entanglement")
-            mm = q3.measure()
+        #START STEP2
+        print(f"{app_config.app_name}: STEP2 shared GHZ.")
+        # Create a socket to recv classical information
+        socket = Socket("agent3", "sender", log_config=app_config.log_config)
+        epr_socket = EPRSocket("sender")
+        agent3 = NetQASMConnection(
+            app_name=app_config.app_name,
+            log_config=app_config.log_config,
+            epr_sockets=[epr_socket],
+        )
+        # teleportation to receive the GHZ qubit
+        with agent3:
+            q3 = epr_socket.recv_keep()[0]
             agent3.flush()
-            print(f"{app_config.app_name}: mm={mm}")
+            # Get the corrections
+            m1, m2 = socket.recv_structured().payload
+            if m2 == 1:
+                q3.X()
+            if m1 == 1:
+                q3.Z()
+            #m = q3.measure()
+            #agent3.flush()
+            #print(f"{app_config.app_name}: m={m}")
+        #END STEP2
         
-        else: # x == 0
-            print(f"{app_config.app_name}: x={x} RandomAgent and Verification")
-            
-        #END STEP3
-    
+            #START STEP3
+            print(f"{app_config.app_name}: STEP3 Verification or Anonymous Entanglement.")
+            #(a)
+            #RandomBit 1.
+            xi = 0
+            #RandomBit 2. (LogicalOR)
+            x = protocol_LogicalOR(xi, s, bcbs, AGENT3)
+            #(b)
+            if x == 1:
+                print(f"{app_config.app_name}: x={x} Anonymous Entanglement.")
+                #mm = q3.measure()
+                #agent3.flush()
+                #print(f"{app_config.app_name}: mm={mm}")
+                #1.
+                if rec == 0: # the agent isn't the receiver
+                    q3.H()
+                
+            else: # x == 0
+                print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
+                
+            #END STEP3
+    except Exception as e:
+        print(f"{app_config.app_name} error: {e}. Agent abort, other agents may also crash.")
     
     return {"0":0}
 
