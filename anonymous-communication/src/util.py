@@ -89,13 +89,34 @@ class BroadcastChannelBySockets():
                     )
         raise RuntimeError("No message broadcasted")
 
-def protocol_Anonymous_Entanglement():
-    pass
-
+def parity_bits(b: int, bcbs: BroadcastChannelBySockets, agent: int) -> bool:
+    bits = []
+    if agent == SENDER:
+        bcbs.send(str(b))
+        # The sender doesn't need the parity result, only the receiver need it
+        for i in range(3):
+            bits.append(int(bcbs.recv()[1]))
+    elif agent == AGENT1:
+        bits.append(int(bcbs.recv()[1]))
+        bcbs.send(str(b))
+        for i in range(2):
+            bits.append(int(bcbs.recv()[1]))
+    elif agent == AGENT2:
+        for i in range(2):
+            bits.append(int(bcbs.recv()[1]))
+        bcbs.send(str(b))
+        bits.append(int(bcbs.recv()[1]))
+    elif agent == AGENT3:
+        for i in range(3):
+            bits.append(int(bcbs.recv()[1]))
+        bcbs.send(str(b))
+    return sum(bits) % 2 == 1
+    
 def protocol_Verification():
     pass
 
 def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: int) -> int:
+    """Protocol 7"""
     ys = []
     for order in [0, 1, 2, 3]:
         for step in range(s):
@@ -108,6 +129,7 @@ def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: 
     return yi
 
 def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order: int = 0) -> int:
+    """Protocol 6"""
     orders = {0: [0, 1, 2, 3],
               1: [1, 2, 3, 0],
               2: [2, 3, 0, 1],

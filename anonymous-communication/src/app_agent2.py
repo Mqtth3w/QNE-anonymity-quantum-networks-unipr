@@ -26,7 +26,7 @@ def main(app_config=None, s=2, r=2):
             log_config=app_config.log_config,
             epr_sockets=[epr_socket],
         )
-        # teleportation to receive the GHZ qubit
+        # Teleportation to receive the shared GHZ qubit
         with agent2:
             q2 = epr_socket.recv_keep()[0]
             agent2.flush()
@@ -35,10 +35,7 @@ def main(app_config=None, s=2, r=2):
             if m2 == 1:
                 q2.X()
             if m1 == 1:
-                q2.Z()
-            #m = q2.measure()
-            #agent2.flush()
-            #print(f"{app_config.app_name}: m={m}")    
+                q2.Z()    
         #END STEP2
         
             #START STEP3
@@ -49,15 +46,23 @@ def main(app_config=None, s=2, r=2):
             #RandomBit 2. (LogicalOR)
             x = protocol_LogicalOR(xi, s, bcbs, AGENT2)
             #(b)
+            rec = 1 # just for test
+            x = 1
             if x == 1:
                 print(f"{app_config.app_name}: x={x} Anonymous Entanglement.")
-                #mm = q2.measure()
-                #agent2.flush()
-                #print(f"{app_config.app_name}: mm={mm}")
                 #1.
-                if rec == 0: # the agent isn't the receiver
+                if rec == 0: # The agent isn't the receiver
                     q2.H()
-                
+                    b = q2.measure()
+                    agent2.flush()
+                    parity_bits(b, bcbs, AGENT2)
+                else: # rec == 1 so the agent is the receiver
+                    #2.
+                    b = random.choice([0, 1])
+                    p = parity_bits(b, bcbs, AGENT2)
+                    if p:
+                        q2.Z()
+                    print(f"{app_config.app_name}: Share an anonymous entanglement with the sender. It can be used to teleport a generic quantum state.")
             else: # x == 0
                 print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
                 

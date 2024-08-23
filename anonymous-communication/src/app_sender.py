@@ -34,6 +34,7 @@ def main(app_config=None, s=2, r=2):
             log_config=app_config.log_config,
             epr_sockets=epr_sockets,
         )
+        # Create and share the GHZ
         with sender: # This orrible library disallow generalization
             q0 = Qubit(sender)
             q1 = Qubit(sender)
@@ -44,28 +45,25 @@ def main(app_config=None, s=2, r=2):
             q0.cnot(q1)
             q1.cnot(q2)
             q2.cnot(q3)
-            # teleport q1 to agent1
+            # Teleport q1 to agent1
             epr1 = epr_sockets[0].create_keep()[0]
             q1.cnot(epr1)
             q1.H()
             m11 = q1.measure()
             m12 = epr1.measure()
-            # teleport q2 to agent2
+            # Teleport q2 to agent2
             epr2 = epr_sockets[1].create_keep()[0]
             q2.cnot(epr2)
             q2.H()
             m21 = q2.measure()
             m22 = epr2.measure()
-            # teleport q3 to agent3
+            # Teleport q3 to agent3
             epr3 = epr_sockets[2].create_keep()[0]
             q3.cnot(epr3)
             q3.H()
             m31 = q3.measure()
             m32 = epr3.measure()
-            # measure 
-            #m = q0.measure()
             sender.flush()
-            #print(f"{app_config.app_name}: m={m}")
             # Send the correction information
             m11, m12 = int(m11), int(m12)
             sockets[0].send_structured(StructuredMessage("Corrections", (m11, m12)))
@@ -83,12 +81,16 @@ def main(app_config=None, s=2, r=2):
             #RandomBit 2. (LogicalOR)
             x = protocol_LogicalOR(xi, s, bcbs, SENDER)
             #(b)
+            x = 1 # just for test
             if x == 1:
                 print(f"{app_config.app_name}: x={x} Anonymous Entanglement.")
-                #mm = q0.measure()
-                #sender.flush()
-                #print(f"{app_config.app_name}: mm={mm}")
-            
+                #1.
+                #2.
+                b = random.choice([0, 1])
+                parity_bits(b, bcbs, SENDER)
+                if b == 1:
+                    q0.Z()
+                print(f"{app_config.app_name}: Share an anonymous entanglement with the receiver. It can be used to teleport a generic quantum state.")
             else: # x == 0
                 print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
                 
