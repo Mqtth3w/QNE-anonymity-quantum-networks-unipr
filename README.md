@@ -34,6 +34,9 @@ netqasm simulate
 ```
 ## Creating an experiment
 ```bash
+cd myenvQNE
+```
+```bash
 qne experiment create exp1 anonymous-communication europe
 ```
 ```bash
