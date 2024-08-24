@@ -47,7 +47,7 @@ def main(app_config=None, s=2, r=2):
             x = protocol_LogicalOR(xi, s, bcbs, AGENT1)
             #(b)
             rec = 0 # just for test
-            x = 1
+            x = 0
             if x == 1:
                 print(f"{app_config.app_name}: x={x} Anonymous Entanglement.")
                 #1.
@@ -67,8 +67,35 @@ def main(app_config=None, s=2, r=2):
                 print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
                 #(i)
                 j = int(bcbs.recv()[1])
-                #(ii)
-                
+                print(f"{app_config.app_name}: j={j}.")
+                #(ii) #Verification
+                if j == AGENT1: # Verifier
+                    theta, multiple = protocol_Verification_1(j, AGENT1, bcbs)
+                    #2.
+                    yjs = [] # Measures
+                    for _ in range(AGENTS-1):
+                        yjs.append(int(bcbs.recv()[1]))
+                    #3.
+                    valid = reduce(lambda x, y: x ^ y, yjs) == (multiple % 2)
+                    print(f"{app_config.app_name}: valid={valid}.")
+                    if valid:
+                        bcbs.send("1")
+                    else:
+                        bcbs.send("0")
+                else:
+                    theta = protocol_Verification_1(j, AGENT1, bcbs)
+                    #2. 
+                    q1.rot_Y(angle=theta)
+                    m = q1.measure()
+                    agent1.flush()
+                    bcbs.send(str(m))
+                    bcbs.recv() # Clean the broadcast from other agents
+                    bcbs.recv() 
+                    #3. # Receive the verifier decision
+                    v = bcbs.recv()[1]
+                    print(f"{app_config.app_name}: v={v}.")
+                    valid = v == "1"
+                    print(f"{app_config.app_name}: valid={valid}.")
             #END STEP3
     except Exception as e:
         print(f"{app_config.app_name} error: {e}. Agent abort, other agents may also crash.")

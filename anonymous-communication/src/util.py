@@ -3,10 +3,11 @@
 @license GPL-3.0
 """
 import random
+import numpy as np
 from functools import reduce
 from netqasm.sdk.external import Socket
 from timeit import default_timer as timer
-from typing import List, Optional, Tuple, Type
+from typing import List, Optional, Tuple, Type, Union
 
 SENDER = 0
 AGENT1 = 1
@@ -85,38 +86,51 @@ class BroadcastChannelBySockets():
                     )
         raise RuntimeError("No message broadcasted")
 
+def protocol_Verification_1(j: int, agent: int, bcbs: BroadcastChannelBySockets) -> Union[Tuple[float, int], int]:
+    if agent == j: # Verifier
+        angles = np.random.uniform(0, np.pi, AGENTS-1)
+        partial_sum = np.sum(angles)
+        theta_n = (np.ceil(partial_sum / np.pi) * np.pi) - partial_sum
+        angles = np.append(angles, theta_n)
+        multiple = int(np.sum(angles) // np.pi)
+        for i in range(1, AGENTS):
+            bcbs.send(str(angles[i]))
+        return angles[0], multiple
+    else:
+        angles = []
+        angles.append(float(bcbs.recv()[1]))
+        if agent == AGENT3:
+            return angles[j]
+        return angles[agent]
+
 def parity_bits(b: int, bcbs: BroadcastChannelBySockets, agent: int) -> bool:
     bits = []
     if agent == SENDER:
         bcbs.send(str(b))
         # The sender doesn't need the parity result, only the receiver need it
-        for i in range(3): # Not necessary
+        for _ in range(3): # Not necessary
             bits.append(int(bcbs.recv()[1]))
     elif agent == AGENT1:
         bits.append(int(bcbs.recv()[1]))
         bcbs.send(str(b))
-        for i in range(2):
+        for _ in range(2):
             bits.append(int(bcbs.recv()[1]))
     elif agent == AGENT2:
-        for i in range(2):
+        for _ in range(2):
             bits.append(int(bcbs.recv()[1]))
         bcbs.send(str(b))
         bits.append(int(bcbs.recv()[1]))
     elif agent == AGENT3:
-        for i in range(3):
+        for _ in range(3):
             bits.append(int(bcbs.recv()[1]))
         bcbs.send(str(b))
     return sum(bits) % 2 == 1
-    
-def protocol_Verification():
-    pass
 
 def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: int) -> int:
     """Protocol 7"""
     ys = []
     for order in [0, 1, 2, 3]:
-        for step in range(s):
-            print(f"agent{agent} order={order} step={step}")
+        for _ in range(s):
             #(a)
             p = 0 if xi == 0 else random.choice([0, 1])
             #(b)
@@ -141,29 +155,29 @@ def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order:
     if orders[order][agent] == 0:
         for elem in r_gen:
             bcbs.send(str(elem))
-        for i in range(3):
+        for _ in range(3):
             tmp = []
-            for j in range(4):
+            for _ in range(4):
                 tmp.append(bcbs.recv())
             r_rec.append(int(tmp[agent][1]))
         #3.
         zj = reduce(lambda x, y: x ^ y, r_rec)
         bcbs.send(str(zj))
         z_rec = [zj]
-        for i in range(3):
+        for _ in range(3):
             z_rec.append(int(bcbs.recv()[1]))
         #4. #z
         yi = reduce(lambda x, y: x ^ y, z_rec)
     elif orders[order][agent] == 1:
         tmp = []
-        for j in range(4):
+        for _ in range(4):
             tmp.append(bcbs.recv())
         r_rec.append(int(tmp[agent][1]))
         for elem in r_gen:
             bcbs.send(str(elem))
-        for i in range(2):
+        for _ in range(2):
             tmp = []
-            for j in range(4):
+            for _ in range(4):
                 tmp.append(bcbs.recv())
             r_rec.append(int(tmp[agent][1]))
         #3.
@@ -171,35 +185,35 @@ def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order:
         z_rec = [zj]
         z_rec.append(int(bcbs.recv()[1]))
         bcbs.send(str(zj))
-        for i in range(2):
+        for _ in range(2):
             z_rec.append(int(bcbs.recv()[1]))
         #4. #z
         yi = reduce(lambda x, y: x ^ y, z_rec)
     elif orders[order][agent] == 2:
-        for i in range(2):
+        for _ in range(2):
             tmp = []
-            for j in range(4):
+            for _ in range(4):
                 tmp.append(bcbs.recv())
             r_rec.append(int(tmp[agent][1]))
         for elem in r_gen:
             bcbs.send(str(elem))
         tmp = []
-        for j in range(4):
+        for _ in range(4):
             tmp.append(bcbs.recv())
         r_rec.append(int(tmp[agent][1]))
         #3.
         zj = reduce(lambda x, y: x ^ y, r_rec)
         z_rec = [zj]
-        for i in range(2):
+        for _ in range(2):
             z_rec.append(int(bcbs.recv()[1]))
         bcbs.send(str(zj))
         z_rec.append(int(bcbs.recv()[1]))
         #4. #z
         yi = reduce(lambda x, y: x ^ y, z_rec)
     elif orders[order][agent] == 3:
-        for i in range(3):
+        for _ in range(3):
             tmp = []
-            for j in range(4):
+            for _ in range(4):
                 tmp.append(bcbs.recv())
             r_rec.append(int(tmp[agent][1]))
         for elem in r_gen:
@@ -207,7 +221,7 @@ def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order:
         #3.
         zj = reduce(lambda x, y: x ^ y, r_rec)
         z_rec = [zj]
-        for i in range(3):
+        for _ in range(3):
             z_rec.append(int(bcbs.recv()[1]))
         bcbs.send(str(zj))
         #4. #z
@@ -218,8 +232,7 @@ def protocol_Notification(s: int, r: int, bcbs: BroadcastChannelBySockets, agent
     """Protocol 2"""
     p = [0, 0, 0, 0]
     ys = []
-    for step in range(s): # c)
-        print(f"agent {agent} step {step}")
+    for _ in range(s): # c)
         # a)
         for j in range(AGENTS):
             if j != agent:
