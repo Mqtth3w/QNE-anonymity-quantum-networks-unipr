@@ -93,6 +93,14 @@ def main(app_config=None, s=2, r=2):
                 print(f"{app_config.app_name}: Share an anonymous entanglement with the receiver. It can be used to teleport a generic quantum state.")
             else: # x == 0
                 print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
+                #(i) #RandomAgent
+                js = []
+                for i in range(2): # log2(n) = 2, with n = AGENTS = 4.
+                    #RandomBit (private)
+                    js.append(str(distribution_D(s)))
+                j = int(''.join(js), 2)
+                bcbs.send(str(j))
+                #(ii)
                 
             #END STEP3
     except Exception as e:

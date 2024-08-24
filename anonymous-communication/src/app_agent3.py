@@ -65,6 +65,9 @@ def main(app_config=None, s=2, r=2):
                     print(f"{app_config.app_name}: Share an anonymous entanglement with the sender. It can be used to teleport a generic quantum state.")
             else: # x == 0
                 print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
+                #(i)
+                j = int(bcbs.recv()[1])
+                #(ii)
                 
             #END STEP3
     except Exception as e:

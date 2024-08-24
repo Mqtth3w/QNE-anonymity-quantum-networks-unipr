@@ -40,10 +40,6 @@ class BroadcastChannelBySockets():
         """Create one-to-one socket between app_name and remote_app_name."""
         return Socket(app_name, remote_app_name, log_config=app_config.log_config if app_config else None)
     
-    def get_app_config(self):
-        """Return the self._app_config"""
-        return self._app_config
-    
     def send(self, msg: str) -> None:
         """Broadcast a message to all remote nodes."""
         for socket in self._sockets.values():
@@ -94,7 +90,7 @@ def parity_bits(b: int, bcbs: BroadcastChannelBySockets, agent: int) -> bool:
     if agent == SENDER:
         bcbs.send(str(b))
         # The sender doesn't need the parity result, only the receiver need it
-        for i in range(3):
+        for i in range(3): # Not necessary
             bits.append(int(bcbs.recv()[1]))
     elif agent == AGENT1:
         bits.append(int(bcbs.recv()[1]))
