@@ -5,9 +5,9 @@
     "the-netherlands"
   ],
   "roles": [
-    "sender",
     "agent1",
     "agent2",
-    "agent3"
+    "agent3",
+    "sender"
   ]
 }

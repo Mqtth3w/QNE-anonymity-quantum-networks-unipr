@@ -1,5 +1,19 @@
 {
-  "round_result_view": [],
+  "round_result_view": [
+	[
+      {
+        "output_type": "text",
+        "title": "Anonymous Communication results",
+        "parameters": {
+          "content": "The sender attempted to establish an anonymous entanglement with the receiver in a network of four agents. This entanglement can be used to teleport any arbitrary quantum state."
+        }
+      }
+    ],
+	[
+	
+	]
+  
+  ],
   "cumulative_result_view": [],
   "final_result_view": []
 }

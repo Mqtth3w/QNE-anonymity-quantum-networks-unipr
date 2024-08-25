@@ -87,6 +87,7 @@ class BroadcastChannelBySockets():
         raise RuntimeError("No message broadcasted")
 
 def protocol_Verification_1(j: int, agent: int, bcbs: BroadcastChannelBySockets) -> Union[Tuple[float, int], int]:
+    """Step 1 of Protocol 4"""
     if agent == j: # Verifier
         angles = np.random.uniform(0, np.pi, AGENTS-1)
         partial_sum = np.sum(angles)
@@ -98,12 +99,14 @@ def protocol_Verification_1(j: int, agent: int, bcbs: BroadcastChannelBySockets)
         return angles[0], multiple
     else:
         angles = []
-        angles.append(float(bcbs.recv()[1]))
+        for _ in range(AGENTS-1):
+            angles.append(float(bcbs.recv()[1]))
         if agent == AGENT3:
             return angles[j]
         return angles[agent]
 
 def parity_bits(b: int, bcbs: BroadcastChannelBySockets, agent: int) -> bool:
+    """Protocol 3 - Partial execution of steps 2 and 3"""
     bits = []
     if agent == SENDER:
         bcbs.send(str(b))
@@ -140,7 +143,7 @@ def protocol_LogicalOR(xi: int, s: int, bcbs: BroadcastChannelBySockets, agent: 
 
 def protocol_Parity(xi: int, bcbs: BroadcastChannelBySockets, agent: int, order: int = 0) -> int:
     """Protocol 6"""
-    orders = {0: [0, 1, 2, 3],
+    orders = {0: [0, 1, 2, 3], # Orders define the order in which agents send and receive data
               1: [1, 2, 3, 0],
               2: [2, 3, 0, 1],
               3: [3, 0, 1, 2]}
