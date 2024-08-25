@@ -52,7 +52,7 @@ def main(app_config=None, s=2, r=2):
                 #(b)
                 #rec = 0 # Just to test
                 #x = 0
-                if x == 1:
+                if x == 0:
                     print(f"{app_config.app_name}: x={x} Anonymous Entanglement.")
                     #1.
                     if rec == 0: # the agent isn't the receiver
@@ -67,7 +67,7 @@ def main(app_config=None, s=2, r=2):
                         if p:
                             q3.Z()
                         print(f"{app_config.app_name}: Share an anonymous entanglement with the sender. It can be used to teleport a generic quantum state.")
-                else: # x == 0
+                else: # x == 1
                     print(f"{app_config.app_name}: x={x} RandomAgent and Verification.")
                     #(i)
                     j = int(bcbs.recv()[1])
@@ -102,7 +102,10 @@ def main(app_config=None, s=2, r=2):
     except Exception as e:
         print(f"{app_config.app_name} error: {e}. Agent abort, other agents may also crash.")
     
-    return {"0":0}
+    return {"is_receiver": rec,
+            "x_decision": x,
+            "verifier_index": j,
+            "valid_GHZ": valid}
 
 
 if __name__ == "__main__": 

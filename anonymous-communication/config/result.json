@@ -10,9 +10,41 @@
       }
     ],
 	[
-	
-	]
-  
+      {
+        "output_type": "text",
+        "title": "Who is the receiver?",
+        "parameters": {
+          "content": "- agent1 is_receiver = {{ $.app_agent1.is_receiver }}.\n- agent2 is_receiver = {{ $.app_agent2.is_receiver }}.\n- agent3 is_receiver = {{ $.app_agent3.is_receiver }}."
+        }
+      }
+    ],
+	[
+      {
+        "output_type": "text",
+        "title": "x decision",
+        "parameters": {
+          "content": "x = {{ $.app_sender.x_decision }}.\n- A value of 0 indicates proceeding with anonymous entanglement.\n- A value of 1 indicates proceeding with GHZ verification."
+        }
+      }
+    ],
+	[
+      {
+        "output_type": "text",
+        "title": "Who is the GHZ verifier?",
+        "parameters": {
+          "content": "The sender choice is j = {{ $.app_sender.verifier_index }}.\n0 stand for sender, 1 stand for agent1 and so on. This value makes sense only for x = 1."
+        }
+      }
+    ],
+	[
+      {
+        "output_type": "text",
+        "title": "Is the shared GHZ valid?",
+        "parameters": {
+          "content": "The verifier output is valid = {{ $.app_sender.valid_GHZ }}.\nThis value makes sense only for x = 1. Sometimes, you might see it as False. This depends on the library's approximation of the angles used to verify the states. However, since all agents are honest nodes, it should always be True."
+        }
+      }
+    ]
   ],
   "cumulative_result_view": [],
   "final_result_view": []

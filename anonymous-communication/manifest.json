@@ -1,8 +1,20 @@
 {
   "application": {
-    "name": "anonymous-communication",
+    "name": "Anonymous Communication",
     "description": "Anonymous communication of quantum messages from the paper Anonymity for practical quantum networks",
     "multi_round": false
   },
-  "remote": {}
+  "remote": {
+    "application": "https://api.quantum-network.com/applications/34/",
+    "application_id": 34,
+    "slug": "anonymous-communication",
+    "app_version": {
+      "enabled": false,
+      "version": 1,
+      "app_version": "https://api.quantum-network.com/app-versions/77/",
+      "app_config": "https://api.quantum-network.com/app-configs/77/",
+      "app_result": "https://api.quantum-network.com/app-results/77/",
+      "app_source": "https://api.quantum-network.com/app-sources/72/"
+    }
+  }
 }
