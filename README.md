@@ -26,7 +26,7 @@ Install packeges to build your projects/experiments
   ```bash
   pip install squidasm --extra-index-url=https://<netsquid-user-name>:<netsquid-password>@pypi.netsquid.org
   ```
-## Quick simulation
+## Simulation
 ```bash
 cd myenvQNE/anonymous-communication/src
 ```
@@ -34,6 +34,7 @@ cd myenvQNE/anonymous-communication/src
 netqasm simulate
 ```
 ## Creating an experiment
+You cannot run it with the following classical way because this application requires more qubits than the experiment mode provides.
 ```bash
 cd myenvQNE
 ```
