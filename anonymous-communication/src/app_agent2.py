@@ -2,8 +2,7 @@
 @author Matteo Gianvenuti https://github.com/mqtth3w
 @license GPL-3.0
 """
-from netqasm.sdk import EPRSocket
-from netqasm.sdk.external import NetQASMConnection#, Socket
+
 from util import *
 import app_agent1
 
